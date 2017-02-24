@@ -25,6 +25,7 @@ class LearningAgent(Agent):
         # Set any additional class parameters as needed
 
 
+
     def reset(self, destination=None, testing=False):
         """ The reset function is called at the beginning of each trial.
             'testing' is set to True if testing trials are being used
@@ -39,7 +40,11 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
-
+        epsilon=1
+        epsilon = epsilon - (0.05* epsilon)
+        if testing == True:
+            epsilon = 0
+            alpha = 0
         return None
 
     def build_state(self):
@@ -60,7 +65,7 @@ class LearningAgent(Agent):
         #   If it is not, create a dictionary in the Q-table for the current 'state'
         #   For each action, set the Q-value for the state-action pair to 0
         
-        state = None
+        state = (waypoint, inputs, deadline)
 
         return state
 
@@ -99,7 +104,8 @@ class LearningAgent(Agent):
         # Set the agent state and default action
         self.state = state
         self.next_waypoint = self.planner.next_waypoint()
-        action = None
+        action = random.choice([None,'forward','left','right'])
+
 
         ########### 
         ## TO DO ##
@@ -158,13 +164,15 @@ def run():
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
     agent = env.create_agent(LearningAgent)
+    agent.learning = True
     
     ##############
     # Follow the driving agent
     # Flags:
     #   enforce_deadline - set to True to enforce a deadline metric
     env.set_primary_agent(agent)
-
+    env.enforce_deadline= True
+    
     ##############
     # Create the simulation
     # Flags:
@@ -173,6 +181,10 @@ def run():
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
     sim = Simulator(env)
+    sim.update_delay= 0.01
+    sim.log_metrics= True
+    
+    
     
     ##############
     # Run the simulator
